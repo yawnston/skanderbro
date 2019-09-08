@@ -1,7 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Options;
+using Serilog;
 using Skanderbro.Configuration;
 
 namespace Skanderbro
@@ -9,17 +11,30 @@ namespace Skanderbro
     public sealed class SkanderbroBot
     {
         private readonly DiscordSocketClient client;
+        private readonly string token;
+        private readonly ILogger logger;
 
-        public SkanderbroBot(IOptions<BotSecrets> botSecrets)
+        public SkanderbroBot(IOptions<BotSecrets> botSecrets, ILogger logger)
         {
             client = new DiscordSocketClient();
             client.Log += Client_Log;
-            string token = botSecrets.Value.SkanderbroClientSecret;
+            token = botSecrets.Value.SkanderbroClientSecret;
+            this.logger = logger;
+        }
+
+        public async Task Run()
+        {
+            await client.LoginAsync(TokenType.Bot, token);
+            await client.StartAsync();
+
+            // Block this task until the program is closed.
+            await Task.Delay(Timeout.Infinite);
         }
 
         private Task Client_Log(LogMessage arg)
         {
-            throw new System.NotImplementedException();
+            logger.Information(arg.Message);
+            return Task.CompletedTask;
         }
     }
 }
