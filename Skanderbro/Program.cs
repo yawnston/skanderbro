@@ -1,12 +1,15 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Discord.Commands;
+using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Skanderbro.Configuration;
+using Skanderbro.Services;
 
 namespace Skanderbro
 {
@@ -27,6 +30,8 @@ namespace Skanderbro
             ConfigureServices(services);
             var serviceProvider = services.BuildServiceProvider();
 
+            await serviceProvider.GetService<CommandHandler>().InitializeAsync();
+
             var bot = serviceProvider.GetService<SkanderbroBot>();
             await bot.Run();
         }
@@ -37,6 +42,12 @@ namespace Skanderbro
 
             services.AddOptions();
             services.Configure<BotSecrets>(Configuration.GetSection(nameof(BotSecrets)));
+
+            services.AddSingleton<CommandService>()
+                .AddSingleton<DiscordSocketClient>()
+                .AddSingleton<CommandHandler>();
+
+            services.AddHttpClient<ICountryTagService, CountryTagService>();
 
             services.AddSingleton<SkanderbroBot>();
         }

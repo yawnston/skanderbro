@@ -14,10 +14,10 @@ namespace Skanderbro
         private readonly string token;
         private readonly ILogger logger;
 
-        public SkanderbroBot(IOptions<BotSecrets> botSecrets, ILogger logger)
+        public SkanderbroBot(DiscordSocketClient client, IOptions<BotSecrets> botSecrets, ILogger logger)
         {
-            client = new DiscordSocketClient();
-            client.Log += Client_Log;
+            this.client = client;
+            this.client.Log += Client_Log;
             token = botSecrets.Value.SkanderbroClientSecret;
             this.logger = logger;
         }
