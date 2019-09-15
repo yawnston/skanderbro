@@ -1,6 +1,7 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using System;
 
 namespace Skanderbro.Services
 {
@@ -30,7 +31,7 @@ namespace Skanderbro.Services
                 {
                     return node.InnerText;
                 }
-                if (string.Equals(node.InnerText, countryName, System.StringComparison.InvariantCultureIgnoreCase))
+                if (string.Equals(node.InnerText, countryName, StringComparison.InvariantCultureIgnoreCase))
                 {
                     foundMatch = true;
                 }

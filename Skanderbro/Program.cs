@@ -48,6 +48,7 @@ namespace Skanderbro
                 .AddSingleton<CommandHandler>();
 
             services.AddHttpClient<ICountryTagService, CountryTagService>();
+            services.AddTransient<ILeaderPipService, LeaderPipService>();
 
             services.AddSingleton<SkanderbroBot>();
         }
