@@ -1,35 +1,32 @@
 ﻿using System;
 using Skanderbro.Models;
 using Skanderbro.Models.Enums;
+using Skanderbro.Strategies.LeaderGeneration;
 
 namespace Skanderbro.Services
 {
     public sealed class LeaderPipService : ILeaderPipService
     {
-        public LeaderPipResult CalculateAverageLeaderPips(double tradition, LeaderType leaderType)
+        public LeaderPipResult CalculateAverageLeaderPips(
+            double tradition,
+            LeaderType leaderType,
+            ILeaderPipDistributionStrategy leaderPipDistributionStrategy,
+            LeaderPipModifiers leaderPipModifiers = null)
         {
-            if (tradition < 0 || tradition > 100)
-            {
-                throw new ArgumentOutOfRangeException($"Tradition is out of range: {tradition}");
-            }
             double effectiveTradition = CalculateEffectiveTradition(tradition, leaderType);
             double averagePips = CalculateAveragePips(effectiveTradition);
-            return DistributePips(averagePips);
+            return leaderPipDistributionStrategy.DistributePips(averagePips, leaderPipModifiers);
         }
 
-        public LeaderPipResult CalculateAverageRulerLeaderPips(double tradition, int militarySkill)
+        public LeaderPipResult CalculateAverageRulerLeaderPips(
+            double tradition,
+            int militarySkill,
+            ILeaderPipDistributionStrategy leaderPipDistributionStrategy,
+            LeaderPipModifiers leaderPipModifiers = null)
         {
-            if (tradition < 0 || tradition > 100)
-            {
-                throw new ArgumentOutOfRangeException($"Tradition is out of range: {tradition}");
-            }
-            if (militarySkill < 0 || militarySkill > 6)
-            {
-                throw new ArgumentOutOfRangeException($"Military skill is out of range: {militarySkill}");
-            }
             double effectiveTradition = CalculateRulerEffectiveTradition(tradition, militarySkill);
             double averagePips = CalculateAveragePips(effectiveTradition);
-            return DistributePips(averagePips);
+            return leaderPipDistributionStrategy.DistributePips(averagePips, leaderPipModifiers);
         }
 
         private double CalculateAveragePips(double effectiveTradition)
@@ -71,26 +68,6 @@ namespace Skanderbro.Services
         private double CalculateRulerEffectiveTradition(double tradition, int militarySkill)
         {
             return (0.5 * tradition) + (7 * militarySkill);
-        }
-
-        private LeaderPipResult DistributePips(double pips)
-        {
-            double remainingPips = pips;
-            var result = new LeaderPipResult();
-            while (remainingPips > 10)
-            {
-                remainingPips -= 4;
-                result.Fire++;
-                result.Shock++;
-                result.Maneuver++;
-                result.Siege++;
-            }
-            result.Fire += Math.Round(0.3 * remainingPips, 2);
-            result.Shock += Math.Round(0.3 * remainingPips, 2);
-            result.Maneuver += Math.Round(0.3 * remainingPips, 2);
-            result.Siege += Math.Round(0.1 * remainingPips, 2);
-
-            return result;
         }
     }
 }
