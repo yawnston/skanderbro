@@ -29,7 +29,7 @@ namespace Skanderbro.Modules
 
         [Command("commands")]
         [Summary("Gets the list of all the tricks Skanderbro was taught using positive reinforcement methods.")]
-        public async Task Help()
+        public async Task ListCommandsAsync()
         {
             var commands = commandService.Commands.ToList();
             var embedBuilder = new EmbedBuilder();
@@ -47,7 +47,7 @@ namespace Skanderbro.Modules
 
         [Command("help")]
         [Summary("Reminds you how to use a certain command (since you keep forgetting).")]
-        public async Task Help(string commandName)
+        public async Task GetCommandHelpAsync([Summary("Name of the command you need help with")] string commandName)
         {
             var commands = commandService.Commands.ToList();
             var searchedCommand = commands.Find(c => c.Name == commandName);
@@ -64,11 +64,16 @@ namespace Skanderbro.Modules
                 if (searchedCommand.Parameters.Count > 0)
                 {
                     builder.Description = "Parameter list:";
+                    foreach (var parameter in searchedCommand.Parameters)
+                    {
+                        builder.AddField(parameter.Name + $" ({parameter.Type.Name})" + (parameter.IsOptional ? " [optional]" : ""), parameter.Summary);
+                    }
                 }
-                foreach (var parameter in searchedCommand.Parameters)
+                else
                 {
-                    builder.AddField(parameter.Name + $" ({parameter.Type.Name})" + (parameter.IsOptional ? " [optional]" : ""), parameter.Summary);
+                    builder.Description = "No parameters.";
                 }
+
                 await ReplyAsync($"Showing help for {searchedCommand.Name}:", false, builder.Build());
             }
         }

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Skanderbro.Models;
+using Skanderbro.TypeReaders;
 
 namespace Skanderbro
 {
@@ -21,12 +24,14 @@ namespace Skanderbro
 
         public async Task InitializeAsync()
         {
+            commands.AddTypeReader<LeaderPipModifiers>(new LeaderPipModifiersTypeReader());
             // Pass the service provider to the second parameter of
             // AddModulesAsync to inject dependencies to all modules 
             // that may require them.
             var c = await commands.AddModulesAsync(
                 assembly: Assembly.GetEntryAssembly(),
                 services: services);
+            commands.CommandExecuted += OnCommandExecutedAsync;
             client.MessageReceived += HandleCommandAsync;
         }
 
@@ -55,6 +60,28 @@ namespace Skanderbro
                 context: context,
                 argPos: argPos,
                 services: services);
+        }
+
+        public async Task OnCommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
+        {
+            // We have access to the information of the command executed,
+            // the context of the command, and the result returned from the
+            // execution in this event.
+
+            // We can tell the user what went wrong
+            if (!string.IsNullOrEmpty(result?.ErrorReason))
+            {
+                string responseMessage = result.ErrorReason;
+                if (command.IsSpecified)
+                {
+                    responseMessage += $" Type `!help {command.Value.Name}` to get Skanderbro to help with this command.";
+                }
+                else
+                {
+                    responseMessage += $" Type `!commands` to find out what Skanderbro can do.";
+                }
+                await context.Channel.SendMessageAsync(responseMessage);
+            }
         }
     }
 }
