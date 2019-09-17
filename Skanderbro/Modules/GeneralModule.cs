@@ -27,6 +27,7 @@ namespace Skanderbro.Modules
             return ReplyAsync(echo);
         }
 
+        // !commands
         [Command("commands")]
         [Summary("Gets the list of all the tricks Skanderbro was taught using positive reinforcement methods.")]
         public async Task ListCommandsAsync()
@@ -45,6 +46,7 @@ namespace Skanderbro.Modules
             await ReplyAsync("Here's a list of commands and their descriptions: ", false, embedBuilder.Build());
         }
 
+        // !help [commandname]
         [Command("help")]
         [Summary("Reminds you how to use a certain command (since you keep forgetting).")]
         public async Task GetCommandHelpAsync([Summary("Name of the command you need help with")] string commandName)

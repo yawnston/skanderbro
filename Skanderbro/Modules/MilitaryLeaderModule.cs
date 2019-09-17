@@ -22,7 +22,7 @@ namespace Skanderbro.Modules
         [Summary("Approximate average pips for a general, given military tradition.")]
         public async Task ApproximateGeneralPipsAsync(
             [Summary("Army tradition (0-100)")] double tradition,
-            [Summary("Guaranteed pips (0-6 in each category)")] LeaderPipModifiers pipModifiers = null)
+            [Summary("Guaranteed pips (0-6 in each category), formatted like 'fire=1,maneuver=2'")] LeaderPipModifiers pipModifiers = null)
         {
             if (!LeaderValidator.IsTraditionValid(tradition, out string traditionError))
             {
@@ -43,7 +43,7 @@ namespace Skanderbro.Modules
         [Summary("Uses simulation to calculate average pips for a general, given military tradition.")]
         public async Task SimulateGeneralPipsAsync(
             [Summary("Army tradition (0-100)")] double tradition,
-            [Summary("Guaranteed pips (0-6 in each category)")] LeaderPipModifiers pipModifiers = null)
+            [Summary("Guaranteed pips (0-6 in each category), formatted like 'fire=1,maneuver=2'")] LeaderPipModifiers pipModifiers = null)
         {
             if (!LeaderValidator.IsTraditionValid(tradition, out string traditionError))
             {
@@ -65,7 +65,7 @@ namespace Skanderbro.Modules
         public async Task ApproximateRulerGeneralPipsAsync(
             [Summary("Army tradition (0-100)")] double tradition,
             [Summary("Ruler military skill (0-6)")] int militarySkill,
-            [Summary("Guaranteed pips (0-6 in each category)")] LeaderPipModifiers pipModifiers = null)
+            [Summary("Guaranteed pips (0-6 in each category), formatted like 'fire=1,maneuver=2'")] LeaderPipModifiers pipModifiers = null)
         {
             if (!LeaderValidator.IsTraditionValid(tradition, out string traditionError))
             {
@@ -92,7 +92,7 @@ namespace Skanderbro.Modules
         public async Task SimulateRulerGeneralPipsAsync(
             [Summary("Army tradition (0-100)")] double tradition,
             [Summary("Ruler military skill (0-6)")] int militarySkill,
-            [Summary("Guaranteed pips (0-6 in each category)")] LeaderPipModifiers pipModifiers = null)
+            [Summary("Guaranteed pips (0-6 in each category), formatted like 'fire=1,maneuver=2'")] LeaderPipModifiers pipModifiers = null)
         {
             if (!LeaderValidator.IsTraditionValid(tradition, out string traditionError))
             {
