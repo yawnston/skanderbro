@@ -1,4 +1,5 @@
-﻿using Skanderbro.Models;
+﻿using System.Threading.Tasks;
+using Skanderbro.Models;
 using Skanderbro.Models.Enums;
 using Skanderbro.Strategies.LeaderGeneration;
 
@@ -6,13 +7,13 @@ namespace Skanderbro.Services
 {
     public interface ILeaderPipService
     {
-        LeaderPipResult CalculateAverageLeaderPips(
+        Task<LeaderPipResult> CalculateAverageLeaderPipsAsync(
             double tradition,
             LeaderType leaderType,
             ILeaderPipDistributionStrategy leaderPipDistributionStrategy,
             LeaderPipModifiers leaderPipModifiers = null);
 
-        LeaderPipResult CalculateAverageRulerLeaderPips(
+        Task<LeaderPipResult> CalculateAverageRulerLeaderPipsAsync(
             double tradition,
             int militarySkill,
             ILeaderPipDistributionStrategy leaderPipDistributionStrategy,

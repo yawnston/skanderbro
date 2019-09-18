@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Skanderbro.Constants;
 using Skanderbro.Extensions;
 using Skanderbro.Models;
@@ -8,16 +11,45 @@ namespace Skanderbro.Strategies.LeaderGeneration
     public sealed class LeaderPipSimulationStrategy : ILeaderPipDistributionStrategy
     {
         private const int SimulationIterations = 1000;
+        private const int DegreeOfParallelism = 4;
+        private const int IterationsPerSlave = SimulationIterations / DegreeOfParallelism;
         private const int RoundingDigits = 2;
 
-        private readonly Random random = new Random(DateTime.UtcNow.Millisecond);
-
-        public LeaderPipResult DistributePips(double averageBasePips, LeaderPipModifiers leaderPipModifiers = null)
+        public async Task<LeaderPipResult> DistributePipsAsync(double averageBasePips, LeaderPipModifiers leaderPipModifiers = null)
         {
-            var result = new LeaderPipResult();
-            for (int i = 0; i < SimulationIterations; i++)
+            var slaveTasks = new List<Task<LeaderPipResult>>();
+            for (int i = 0; i < DegreeOfParallelism; i++)
             {
-                LeaderPipResult iterationResult = DistributePipsSimulation(averageBasePips, leaderPipModifiers);
+                slaveTasks.Add(Task.Run(() => RunSimulation(IterationsPerSlave, averageBasePips, leaderPipModifiers)));
+            }
+
+            await Task.WhenAll(slaveTasks);
+
+            var result = new LeaderPipResult();
+
+            foreach (var slaveResult in slaveTasks.Select(s => s.Result))
+            {
+                result.Fire += slaveResult.Fire;
+                result.Shock += slaveResult.Shock;
+                result.Maneuver += slaveResult.Maneuver;
+                result.Siege += slaveResult.Siege;
+            }
+
+            result.Fire = Math.Round(result.Fire / DegreeOfParallelism, RoundingDigits);
+            result.Shock = Math.Round(result.Shock / DegreeOfParallelism, RoundingDigits);
+            result.Maneuver = Math.Round(result.Maneuver / DegreeOfParallelism, RoundingDigits);
+            result.Siege = Math.Round(result.Siege / DegreeOfParallelism, RoundingDigits);
+
+            return result;
+        }
+
+        private static LeaderPipResult RunSimulation(int iterations, double averageBasePips, LeaderPipModifiers leaderPipModifiers = null)
+        {
+            var random = new Random(DateTime.UtcNow.Millisecond);
+            var result = new LeaderPipResult();
+            for (int i = 0; i < iterations; i++)
+            {
+                LeaderPipResult iterationResult = DistributePipsSimulation(averageBasePips, leaderPipModifiers, random);
 
                 result.Fire += iterationResult.Fire;
                 result.Shock += iterationResult.Shock;
@@ -25,15 +57,15 @@ namespace Skanderbro.Strategies.LeaderGeneration
                 result.Siege += iterationResult.Siege;
             }
 
-            result.Fire = Math.Round(result.Fire / SimulationIterations, RoundingDigits);
-            result.Shock = Math.Round(result.Shock / SimulationIterations, RoundingDigits);
-            result.Maneuver = Math.Round(result.Maneuver / SimulationIterations, RoundingDigits);
-            result.Siege = Math.Round(result.Siege / SimulationIterations, RoundingDigits);
+            result.Fire = Math.Round(result.Fire / iterations, RoundingDigits);
+            result.Shock = Math.Round(result.Shock / iterations, RoundingDigits);
+            result.Maneuver = Math.Round(result.Maneuver / iterations, RoundingDigits);
+            result.Siege = Math.Round(result.Siege / iterations, RoundingDigits);
 
             return result;
         }
 
-        private LeaderPipResult DistributePipsSimulation(double averageBasePips, LeaderPipModifiers leaderPipModifiers)
+        private static LeaderPipResult DistributePipsSimulation(double averageBasePips, LeaderPipModifiers leaderPipModifiers, Random random)
         {
             double remainingPips = averageBasePips;
             var result = new LeaderPipResult();

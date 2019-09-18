@@ -1,9 +1,10 @@
-﻿using Skanderbro.Models;
+﻿using System.Threading.Tasks;
+using Skanderbro.Models;
 
 namespace Skanderbro.Strategies.LeaderGeneration
 {
     public interface ILeaderPipDistributionStrategy
     {
-        LeaderPipResult DistributePips(double averageBasePips, LeaderPipModifiers leaderPipModifiers = null);
+        Task<LeaderPipResult> DistributePipsAsync(double averageBasePips, LeaderPipModifiers leaderPipModifiers = null);
     }
 }

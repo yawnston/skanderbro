@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Skanderbro.Models;
 using Skanderbro.Models.Enums;
 using Skanderbro.Strategies.LeaderGeneration;
@@ -7,26 +8,30 @@ namespace Skanderbro.Services
 {
     public sealed class LeaderPipService : ILeaderPipService
     {
-        public LeaderPipResult CalculateAverageLeaderPips(
+        public Task<LeaderPipResult> CalculateAverageLeaderPipsAsync(
             double tradition,
             LeaderType leaderType,
             ILeaderPipDistributionStrategy leaderPipDistributionStrategy,
             LeaderPipModifiers leaderPipModifiers = null)
         {
             double effectiveTradition = CalculateEffectiveTradition(tradition, leaderType);
-            double averagePips = CalculateAveragePips(effectiveTradition);
-            return leaderPipDistributionStrategy.DistributePips(averagePips, leaderPipModifiers);
+            return CalculateAndDistributePips(leaderPipDistributionStrategy, leaderPipModifiers, effectiveTradition);
         }
 
-        public LeaderPipResult CalculateAverageRulerLeaderPips(
+        public Task<LeaderPipResult> CalculateAverageRulerLeaderPipsAsync(
             double tradition,
             int militarySkill,
             ILeaderPipDistributionStrategy leaderPipDistributionStrategy,
             LeaderPipModifiers leaderPipModifiers = null)
         {
             double effectiveTradition = CalculateRulerEffectiveTradition(tradition, militarySkill);
+            return CalculateAndDistributePips(leaderPipDistributionStrategy, leaderPipModifiers, effectiveTradition);
+        }
+
+        private Task<LeaderPipResult> CalculateAndDistributePips(ILeaderPipDistributionStrategy leaderPipDistributionStrategy, LeaderPipModifiers leaderPipModifiers, double effectiveTradition)
+        {
             double averagePips = CalculateAveragePips(effectiveTradition);
-            return leaderPipDistributionStrategy.DistributePips(averagePips, leaderPipModifiers);
+            return leaderPipDistributionStrategy.DistributePipsAsync(averagePips, leaderPipModifiers);
         }
 
         private double CalculateAveragePips(double effectiveTradition)

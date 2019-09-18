@@ -30,7 +30,7 @@ namespace Skanderbro.Modules
                 return;
             }
 
-            var leaderPipResult = await Task.Run(() => leaderPipService.CalculateAverageLeaderPips(
+            var leaderPipResult = await Task.Run(() => leaderPipService.CalculateAverageLeaderPipsAsync(
                 tradition,
                 LeaderType.General,
                 new LeaderPipApproximationStrategy(),
@@ -51,7 +51,7 @@ namespace Skanderbro.Modules
                 return;
             }
 
-            var leaderPipResult = await Task.Run(() => leaderPipService.CalculateAverageLeaderPips(
+            var leaderPipResult = await Task.Run(() => leaderPipService.CalculateAverageLeaderPipsAsync(
                 tradition,
                 LeaderType.General,
                 new LeaderPipSimulationStrategy(),
@@ -78,7 +78,7 @@ namespace Skanderbro.Modules
                 return;
             }
 
-            var leaderPipResult = await Task.Run(() => leaderPipService.CalculateAverageRulerLeaderPips(
+            var leaderPipResult = await Task.Run(() => leaderPipService.CalculateAverageRulerLeaderPipsAsync(
                 tradition,
                 militarySkill,
                 new LeaderPipApproximationStrategy(),
@@ -105,7 +105,7 @@ namespace Skanderbro.Modules
                 return;
             }
 
-            var leaderPipResult = await Task.Run(() => leaderPipService.CalculateAverageLeaderPips(
+            var leaderPipResult = await Task.Run(() => leaderPipService.CalculateAverageLeaderPipsAsync(
                 tradition,
                 LeaderType.General,
                 new LeaderPipSimulationStrategy(),

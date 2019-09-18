@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Skanderbro.Constants;
 using Skanderbro.Extensions;
 using Skanderbro.Models;
@@ -7,7 +8,12 @@ namespace Skanderbro.Strategies.LeaderGeneration
 {
     public sealed class LeaderPipApproximationStrategy : ILeaderPipDistributionStrategy
     {
-        public LeaderPipResult DistributePips(double averageBasePips, LeaderPipModifiers leaderPipModifiers = null)
+        public Task<LeaderPipResult> DistributePipsAsync(double averageBasePips, LeaderPipModifiers leaderPipModifiers = null)
+        {
+            return Task.Run(() => DistributePips(averageBasePips, leaderPipModifiers));
+        }
+
+        private static LeaderPipResult DistributePips(double averageBasePips, LeaderPipModifiers leaderPipModifiers)
         {
             double remainingPips = averageBasePips;
             var result = new LeaderPipResult();
@@ -32,7 +38,6 @@ namespace Skanderbro.Strategies.LeaderGeneration
             result.Shock = result.Shock > LeaderConstants.MaxPipsInCategory ? LeaderConstants.MaxPipsInCategory : result.Shock;
             result.Maneuver = result.Maneuver > LeaderConstants.MaxPipsInCategory ? LeaderConstants.MaxPipsInCategory : result.Maneuver;
             result.Siege = result.Siege > LeaderConstants.MaxPipsInCategory ? LeaderConstants.MaxPipsInCategory : result.Siege;
-
             return result;
         }
     }
