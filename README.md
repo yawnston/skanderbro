@@ -1,6 +1,8 @@
 # Skanderbro
 ## An EU4 Discord bot - in development
 
+[![Actions Status](https://github.com/yawnston/skanderbro/workflows/CI/badge.svg)](https://github.com/yawnston/skanderbro/actions)
+
 ### Commands
 * `tag <country name>` - gets the tag for a country
 * More features to come...
