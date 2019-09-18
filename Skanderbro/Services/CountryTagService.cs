@@ -1,42 +1,72 @@
 ﻿using System;
-using System.Net.Http;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using HtmlAgilityPack;
+using Fastenshtein;
+using Microsoft.Extensions.Caching.Memory;
+using Skanderbro.HttpClients;
+using Skanderbro.Models;
 
 namespace Skanderbro.Services
 {
     public sealed class CountryTagService : ICountryTagService
     {
-        private readonly HttpClient httpClient;
+        private const string CountryTagsMemoryCacheKey = "_CountryTags";
 
-        public CountryTagService(HttpClient httpClient)
+        private readonly ICountryTagClient countryTagClient;
+        private readonly IMemoryCache memoryCache;
+
+        public CountryTagService(ICountryTagClient countryTagClient, IMemoryCache memoryCache)
         {
-            this.httpClient = httpClient;
+            this.countryTagClient = countryTagClient;
+            this.memoryCache = memoryCache;
         }
 
-        public async Task<string> GetCountryTag(string countryName)
+        public async Task<CountryTagResult> GetCountryTag(string countryName)
         {
-            var response = await httpClient.GetAsync("https://eu4cheats.com/country-tags");
-            var page = await response.Content.ReadAsStringAsync();
-
-            var doc = new HtmlDocument();
-            doc.LoadHtml(page);
-
-            var nodes = doc.GetElementbyId("table").SelectNodes("tbody/tr/td");
-
-            bool foundMatch = false;
-            foreach (var node in nodes)
+            if (!memoryCache.TryGetValue(CountryTagsMemoryCacheKey, out IReadOnlyDictionary<string, string> countryNamesAndTags))
             {
-                if (foundMatch)
+                countryNamesAndTags = await countryTagClient.GetCountryTagsAsync();
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromHours(12));
+
+                memoryCache.Set(CountryTagsMemoryCacheKey, countryNamesAndTags, cacheEntryOptions);
+            }
+
+            return FindCountryTag(countryName, countryNamesAndTags);
+        }
+
+        private static CountryTagResult FindCountryTag(string countryName, IReadOnlyDictionary<string, string> countryNamesAndTags)
+        {
+            int minimumDistanceFound = int.MaxValue;
+            (string, string) bestCountryFound = (null, null);
+            foreach (var nameAndTag in countryNamesAndTags)
+            {
+                int distance = Levenshtein.Distance(countryName.ToUpperInvariant(), nameAndTag.Key.ToUpperInvariant());
+                if (distance == 0)
                 {
-                    return node.InnerText;
+                    return new CountryTagResult
+                    {
+                        LevenshteinDistance = 0,
+                        Name = nameAndTag.Key,
+                        Tag = nameAndTag.Value
+                    };
                 }
-                if (string.Equals(node.InnerText, countryName, StringComparison.InvariantCultureIgnoreCase))
+                if (distance < minimumDistanceFound)
                 {
-                    foundMatch = true;
+                    minimumDistanceFound = distance;
+                    bestCountryFound = (nameAndTag.Key, nameAndTag.Value);
                 }
             }
 
+            if (bestCountryFound.Item1 != null && bestCountryFound.Item2 != null)
+            {
+                return new CountryTagResult
+                {
+                    LevenshteinDistance = minimumDistanceFound,
+                    Name = bestCountryFound.Item1,
+                    Tag = bestCountryFound.Item2
+                };
+            }
             return null;
         }
     }

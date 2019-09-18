@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Serilog;
 using Skanderbro.Models;
 using Skanderbro.TypeReaders;
 
@@ -12,14 +13,16 @@ namespace Skanderbro
     public sealed class CommandHandler
     {
         private readonly DiscordSocketClient client;
+        private readonly ILogger logger;
         private readonly CommandService commands;
         private readonly IServiceProvider services;
 
-        public CommandHandler(IServiceProvider services, CommandService commands, DiscordSocketClient client)
+        public CommandHandler(IServiceProvider services, CommandService commands, DiscordSocketClient client, ILogger logger)
         {
             this.commands = commands;
             this.services = services;
             this.client = client;
+            this.logger = logger;
         }
 
         public async Task InitializeAsync()
@@ -32,6 +35,7 @@ namespace Skanderbro
                 assembly: Assembly.GetEntryAssembly(),
                 services: services);
             commands.CommandExecuted += OnCommandExecutedAsync;
+            commands.Log += LogAsync;
             client.MessageReceived += HandleCommandAsync;
         }
 
@@ -81,6 +85,18 @@ namespace Skanderbro
                     responseMessage += $" Type `!commands` to find out what Skanderbro can do.";
                 }
                 await context.Channel.SendMessageAsync(responseMessage);
+            }
+        }
+
+        private async Task LogAsync(LogMessage logMessage)
+        {
+            if (logMessage.Exception is CommandException cmdException)
+            {
+                // We can tell the user that something unexpected has happened
+                await cmdException.Context.Channel.SendMessageAsync("Something went catastrophically wrong!");
+
+                // We can also log this incident
+                logger.Debug($"{cmdException.Context.User} failed to execute '{cmdException.Command.Name}' in {cmdException.Context.Channel}: {cmdException}");
             }
         }
     }

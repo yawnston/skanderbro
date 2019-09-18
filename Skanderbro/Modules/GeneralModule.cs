@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Serilog;
+using Serilog.Core;
 using Skanderbro.Services;
 
 namespace Skanderbro.Modules

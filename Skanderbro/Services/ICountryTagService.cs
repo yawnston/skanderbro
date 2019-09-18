@@ -1,9 +1,10 @@
 ﻿using System.Threading.Tasks;
+using Skanderbro.Models;
 
 namespace Skanderbro.Services
 {
     public interface ICountryTagService
     {
-        Task<string> GetCountryTag(string countryName);
+        Task<CountryTagResult> GetCountryTag(string countryName);
     }
 }

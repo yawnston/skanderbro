@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Discord.Commands;
+using Skanderbro.Models;
 using Skanderbro.Services;
 
 namespace Skanderbro.Modules
@@ -18,14 +19,21 @@ namespace Skanderbro.Modules
         [Summary("Get the tag for a given non-custom nation.")]
         public async Task GetCountryTagAsync([Summary("The name of the country whose tag to search")] string countryName)
         {
-            var tag = await countryTagService.GetCountryTag(countryName);
-            if (tag != null)
+            CountryTagResult result = await countryTagService.GetCountryTag(countryName);
+            if (result != null)
             {
-                await ReplyAsync(tag);
+                if (result.LevenshteinDistance == 0)
+                {
+                    await ReplyAsync(result.Tag);
+                }
+                else
+                {
+                    await ReplyAsync($"Country named {countryName} was not found. The closest available country is {result.Name} with tag {result.Tag}.");
+                }
             }
             else
             {
-                await ReplyAsync($"Country {countryName} was not found.");
+                await ReplyAsync($"Could not fetch country tags.");
             }
         }
     }

@@ -9,6 +9,7 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Skanderbro.Configuration;
+using Skanderbro.HttpClients;
 using Skanderbro.Services;
 
 namespace Skanderbro
@@ -42,15 +43,17 @@ namespace Skanderbro
 
             services.AddOptions();
             services.Configure<BotSecrets>(Configuration.GetSection(nameof(BotSecrets)));
+            services.AddMemoryCache();
 
             services.AddSingleton<CommandService>()
                 .AddSingleton<DiscordSocketClient>()
-                .AddSingleton<CommandHandler>();
+                .AddSingleton<CommandHandler>()
+                .AddSingleton<SkanderbroBot>();
 
-            services.AddHttpClient<ICountryTagService, CountryTagService>();
-            services.AddTransient<ILeaderPipService, LeaderPipService>();
+            services.AddHttpClient<ICountryTagClient, CountryTagClient>();
 
-            services.AddSingleton<SkanderbroBot>();
+            services.AddTransient<ICountryTagService, CountryTagService>()
+                .AddTransient<ILeaderPipService, LeaderPipService>();
         }
 
         private static Logger LoggerFactory(IServiceProvider _)
