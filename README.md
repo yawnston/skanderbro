@@ -1,6 +1,8 @@
 # Skanderbro
 ## An EU4 Discord bot - in development
 
+# Currently I don't really know what direction to take with this bot, if you would be interested in a bot with EU4-related functionality, please contact me and let me know what features you'd like to see.
+
 [![Actions Status](https://github.com/yawnston/skanderbro/workflows/CI/badge.svg)](https://github.com/yawnston/skanderbro/actions)
 
 ### Commands
