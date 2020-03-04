@@ -1,0 +1,5 @@
+version: '3'
+services:
+  skanderbro:
+    build: .
+    container_name: 'skanderbro'
