@@ -36,3 +36,4 @@ jobs:
           tags: latest,${{ github.sha }}
           create_repo: true
           dockerfile: ./Skanderbro/Dockerfile
+          path: ./Skanderbro
