@@ -26,7 +26,7 @@ namespace Skanderbro.Modules
         [Summary("Assert the dominance of man over machine by making Skanderbro say something silly.")]
         public Task SayAsync([Remainder] [Summary("The text to echo")] string echo)
         {
-            return ReplyAsync(echo);
+            return ReplyAsync($"{echo}, HELLO WORLD");
         }
 
         // !commands
