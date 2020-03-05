@@ -35,4 +35,4 @@ jobs:
           region: ap-northeast-2
           tags: latest,${{ github.sha }}
           create_repo: true
-          path: ./Skanderbro
+          dockerfile: ./Skanderbro/Dockerfile
