@@ -1,0 +1,37 @@
+name: AWS deployment
+
+on: 
+  pull_request:
+    types: [labeled]
+
+jobs:
+  build:
+    if: contains(github.event.pull_request.labels.*.name, 'stage')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '2.2.103'
+      - run: dotnet build Skanderbro
+
+  deploy:
+    name: Deploy app to AWS ECR
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: jwsi/secret-parser@v1
+        with:
+          filename: Skanderbro/appsettings.json
+          secret-name: SKANDERBRO_CLIENT_SECRET
+          secret-value: ${{ secrets.SKANDERBRO_CLIENT_SECRET }}
+      - uses: kciter/aws-ecr-action@v1
+        with:
+          access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+          repo: docker/repo
+          region: ap-northeast-2
+          tags: latest,${{ github.sha }}
+          create_repo: true
+          path: ./Skanderbro
