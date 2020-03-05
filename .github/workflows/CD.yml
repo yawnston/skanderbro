@@ -32,7 +32,7 @@ jobs:
           secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           account_id: ${{ secrets.AWS_ACCOUNT_ID }}
           repo: docker/repo
-          region: ap-northeast-2
+          region: eu-central-1
           tags: latest,${{ github.sha }}
           create_repo: true
           dockerfile: ./Skanderbro/Dockerfile
